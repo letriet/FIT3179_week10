@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.15.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
+</head>
+<body>
+  <h1>
+    Week 10 Homework
+  </h1>
+  <h2>
+    Visualisation 1
+  </h2>
+  <div id="vis1"/>
+  <script>
+    const spec1 = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Average Housing Price In Different States",
+  "width": 1000,
+  "height": 400,
+  "projection": {"type": "albersUsa"},
+  "data": {
+    "url": "https://raw.githubusercontent.com/letriet/FIT3179_Week9/main/ne_110m_admin_1_states_provinces.json",
+    "format": {
+      "type": "topojson",
+      "feature": "ne_110m_admin_1_states_provinces"
+    }
+  },
+  "transform": [
+    {
+      "lookup": "properties.name",
+      "from": {
+        "data": {
+          "url": "https://raw.githubusercontent.com/letriet/FIT3179_Week9/main/2023_MedianHousePrices.csv"
+        },
+        "key": "state",
+        "fields": ["medianHomePrice"]
+      }
+    },
+    {
+      "calculate": "datum.medianHomePrice || datum.medianHomePrice+0.1",
+      "as": "Average Housing Price ($USD)"
+    }
+  ],
+  "mark": {"type": "geoshape", "stroke": "gray"},
+  "encoding": {
+    "color": {"field": "Average Housing Price ($USD)", "type": "quantitative"},
+    "tooltip": [
+      {"field": "properties.name", "type": "nominal", "title": "State"},
+      {"field": "Average Housing Price ($USD)", "type": "quantitative"}
+    ]
+  },
+  "config": {}
+};
+    vegaEmbed("#vis1", spec1, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+  </script>
+<h2>
+  Visualisation 2
+</h2>
+  <div id="vis2"/>
+  <script>
+    const spec2 = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 800,
+  "height": 800,
+  "title": "Average GDP Per Capita Between Different U.S States",
+  "data": {
+    "url": "https://raw.githubusercontent.com/letriet/FIT3179_week10/main/2023_MedianHousePrices.csv"
+  },
+  "params": [
+    {
+      "name": "Industry_selection",
+      "bind": {
+        "input": "select",
+        "options": [
+          null,
+          "Federal civilian government",
+          "Finance",
+          "Information",
+          "Manufacturing",
+          "Mining",
+          "Real estate",
+          "Services"
+        ],
+        "labels": [
+          "Show All",
+          "Federal",
+          "Finance",
+          "Information",
+          "Manufacturing",
+          "Mining",
+          "Real estate",
+          "Services"
+        ],
+        "name": "Popular Industry Filter"
+      }
+    }
+  ],
+  "transform": [
+    {
+      "filter": "Industry_selection == null || datum.industries == Industry_selection"
+    }
+  ],
+  "encoding": {
+    "x": {
+      "field": " gdp_per_capita ",
+      "type": "quantitative",
+      "title": "GDP per Capita in Different States",
+      "axis": {"tickCount": 5},
+      "scale": {"type": "log", "domain": [40000, 250000]}
+    },
+    "y": {
+      "field": " population_states ",
+      "type": "quantitative",
+      "title": "Population of Different States",
+      "axis": {"tickCount": 5},
+      "scale": {"type": "log", "domain": [40000, 50000000]}
+    }
+  },
+  "layer": [
+    {
+      "mark": "circle",
+      "encoding": {
+        "size": {
+          "field": " medianHomePrice ",
+          "type": "quantitative",
+          "scale": {
+            "type": "threshold",
+            "domain": [200000, 300000, 400000, 500000, 600000, 700000, 800000],
+            "range": [100, 150, 250, 350, 450, 600, 750]
+          },
+          "legend": {"format": ".1s"}
+        },
+        "color": {"field": "state", "type": "nominal"},
+        "tooltip": [
+          {"field": "state", "type": "ordinal"},
+          {"field": "medianHomePriceYearOnYearGrowth", "type": "quantitative"}
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "baseline": "middle",
+        "dx": -16,
+        "fontSize": 11.5,
+        "fontStyle": "italic"
+      },
+      "encoding": {
+        "text": {"field": "state", "type": "nominal"},
+        "color": {"value": "black"},
+        "opacity": {
+          "condition": {
+            "test": "datum['state'] == 'California' || datum['state'] == 'New York' ||datum['state'] == 'Texas'",
+            "value": 1
+          },
+          "value": 0
+        }
+      }
+    }
+  ],
+  "config": {}
+};
+    vegaEmbed("#vis2", spec2, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+  </script>
+</body>
+</html>
