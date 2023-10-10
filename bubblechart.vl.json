@@ -1,0 +1,103 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 800,
+  "height": 800,
+  "title": "Average GDP Per Capita Between Different U.S States",
+  "data": {
+    "url": "https://raw.githubusercontent.com/letriet/FIT3179_week10/main/2023_MedianHousePrices.csv"
+  },
+  "params": [
+    {
+      "name": "Industry_selection",
+      "bind": {
+        "input": "select",
+        "options": [
+          null,
+          "Federal civilian government",
+          "Finance",
+          "Information",
+          "Manufacturing",
+          "Mining",
+          "Real estate",
+          "Services"
+        ],
+        "labels": [
+          "Show All",
+          "Federal",
+          "Finance",
+          "Information",
+          "Manufacturing",
+          "Mining",
+          "Real estate",
+          "Services"
+        ],
+        "name": "Popular Industry Filter"
+      }
+    }
+  ],
+  "transform": [
+    {
+      "filter": "Industry_selection == null || datum.industries == Industry_selection"
+    }
+  ],
+  "encoding": {
+    "x": {
+      "field": " gdp_per_capita ",
+      "type": "quantitative",
+      "title": "GDP per Capita in Different States",
+      "axis": {"tickCount": 5},
+      "scale": {"type": "log", "domain": [40000, 250000]}
+    },
+    "y": {
+      "field": " population_states ",
+      "type": "quantitative",
+      "title": "Population of Different States",
+      "axis": {"tickCount": 5},
+      "scale": {"type": "log", "domain": [40000, 50000000]}
+    }
+  },
+  "layer": [
+    {
+      "mark": "circle",
+      "encoding": {
+        "size": {
+          "field": " medianHomePrice ",
+          "type": "quantitative",
+          "scale": {
+            "type": "threshold",
+            "domain": [200000, 300000, 400000, 500000, 600000, 700000, 800000],
+            "range": [100, 150, 250, 350, 450, 600, 750]
+          },
+          "legend": {"format": ".1s"}
+        },
+        "color": {"field": "state", "type": "nominal"},
+        "tooltip": [
+          {"field": "state", "type": "ordinal"},
+          {"field": "medianHomePriceYearOnYearGrowth", "type": "quantitative"}
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "baseline": "middle",
+        "dx": -16,
+        "fontSize": 11.5,
+        "fontStyle": "italic"
+      },
+      "encoding": {
+        "text": {"field": "state", "type": "nominal"},
+        "color": {"value": "black"},
+        "opacity": {
+          "condition": {
+            "test": "datum['state'] == 'California' || datum['state'] == 'New York' ||datum['state'] == 'Texas'",
+            "value": 1
+          },
+          "value": 0
+        }
+      }
+    }
+  ],
+  "config": {}
+}
